@@ -8,9 +8,9 @@ In adverse weather conditions, a model may produce a visually appealing image bu
 simultaneously evaluates restoration quality and XAI faithfulness to ensure that enhanced imagery is both perceptually clear and logically sound for safe autonomous navigation 
  
 Objectives: 
-Design a Conceptual Framework for Explainable AI based Deep Learning Model for autonomous / Urban Driving  
-Develop an AI Enhancement Model to remove fog and haze from images to enhance visibility in adverse weather conditions/map data 
-To evaluate and validate the model’s performance using a combination of image restoration metrics and XAI-specific fidelity.
+1. Design a Conceptual Framework for Explainable AI based Deep Learning Model for autonomous / Urban Driving  
+2. Develop an AI Enhancement Model to remove fog and haze from images to enhance visibility in adverse weather conditions/map data 
+3. To evaluate and validate the model’s performance using a combination of image restoration metrics and XAI-specific fidelity.
  
 Main Application area for the project: 
 Autonomous Driving & Smart Transportation 
