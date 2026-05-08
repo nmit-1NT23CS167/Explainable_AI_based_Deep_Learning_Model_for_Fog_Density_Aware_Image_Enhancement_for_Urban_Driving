@@ -46,9 +46,13 @@ def load_model(weights_path: str, device: torch.device) -> AODNet:
                     break
     if weights_path and os.path.exists(weights_path):
         with torch.serialization.safe_globals([AODNet]):
-            state = torch.load(weights_path, map_location=device, weights_only=False)
-        if isinstance(state, dict) and "state_dict" in state:
-            state = state["state_dict"]
+            checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
+        if isinstance(checkpoint, torch.nn.Module):
+            state = checkpoint.state_dict()
+        elif isinstance(checkpoint, dict) and "state_dict" in checkpoint:
+            state = checkpoint["state_dict"]
+        else:
+            state = checkpoint
         model.load_state_dict(state)
         print(f"[RT] Loaded weights from {weights_path}")
     else:

@@ -54,7 +54,10 @@ def enhance_image(image_bgr: np.ndarray, apply_clahe: bool = True, gamma: float 
     
     # Contrast stretching on L channel
     p2, p98 = np.percentile(l_channel, (2, 98))
-    l_stretched = np.clip((l_channel - p2) * (255 / (p98 - p2)), 0, 255).astype(np.uint8)
+    if p98 > p2:
+        l_stretched = np.clip((l_channel - p2) * (255 / (p98 - p2)), 0, 255).astype(np.uint8)
+    else:
+        l_stretched = l_channel
     
     # Apply CLAHE for local contrast enhancement
     if apply_clahe:
