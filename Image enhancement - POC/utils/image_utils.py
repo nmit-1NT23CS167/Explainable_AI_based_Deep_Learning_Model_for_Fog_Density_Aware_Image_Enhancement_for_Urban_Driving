@@ -41,38 +41,45 @@ def postprocess(tensor: torch.Tensor) -> np.ndarray:
     return bgr
 
 
-def enhance_image(image_bgr: np.ndarray, apply_clahe: bool = True, gamma: float = 1.1) -> np.ndarray:
+def enhance_image(image_bgr: np.ndarray, apply_clahe: bool = True, gamma: float = 1.0, saturation_scale: float = 1.08) -> np.ndarray:
     """
-    Apply aggressive defogging enhancement to the image.
-    - Contrast stretching
-    - CLAHE (Contrast Limited Adaptive Histogram Equalization) for local contrast
-    - Gamma correction for brightness adjustment
+    Apply defogging enhancement to the image while preserving color.
+    - Contrast stretching on the LAB L channel
+    - Optional CLAHE for local contrast
+    - Mild gamma adjustment
+    - Slight saturation boost for better color fidelity
     """
     # Convert to LAB for better contrast enhancement
     lab = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
-    
+
     # Contrast stretching on L channel
     p2, p98 = np.percentile(l_channel, (2, 98))
     if p98 > p2:
         l_stretched = np.clip((l_channel - p2) * (255 / (p98 - p2)), 0, 255).astype(np.uint8)
     else:
         l_stretched = l_channel
-    
+
     # Apply CLAHE for local contrast enhancement
     if apply_clahe:
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         l_enhanced = clahe.apply(l_stretched)
     else:
         l_enhanced = l_stretched
-    
-    # Gamma correction for brightness
+
+    # Mild gamma correction for brightness/contrast
     l_gamma = np.power(l_enhanced / 255.0, 1.0 / gamma) * 255.0
     l_gamma = np.clip(l_gamma, 0, 255).astype(np.uint8)
-    
-    # Merge back
+
+    # Merge back and restore color
     enhanced_lab = cv2.merge([l_gamma, a_channel, b_channel])
     enhanced_bgr = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
+
+    # Add a small saturation boost in HSV to recover muted colors
+    hsv = cv2.cvtColor(enhanced_bgr, cv2.COLOR_BGR2HSV).astype(np.float32)
+    hsv[:, :, 1] = np.clip(hsv[:, :, 1] * saturation_scale, 0, 255)
+    enhanced_bgr = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
+
     return enhanced_bgr
 
 

@@ -34,7 +34,8 @@ def get_device() -> torch.device:
 def load_model(weights_path: str, device: torch.device):
     """Load AOD-Net. Downloads pre-trained weights if not found."""
     # Local import so file is standalone-runnable
-    sys.path.insert(0, os.path.dirname(__file__))
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    sys.path.insert(0, script_dir)
     from models.aod_net import AODNet, AODnet
 
     # Allow loading legacy checkpoints that were saved from `model.AODnet`.
@@ -43,15 +44,29 @@ def load_model(weights_path: str, device: torch.device):
 
     model = AODNet().to(device)
 
+    if weights_path:
+        weights_path = os.path.expanduser(weights_path)
+        if not os.path.isabs(weights_path):
+            weights_path = os.path.join(script_dir, weights_path)
+
+    model_dir = os.path.join(script_dir, "models")
+    fallback_path = None
+    if os.path.isdir(model_dir):
+        pths = [f for f in os.listdir(model_dir) if f.lower().endswith(".pth")]
+        pths.sort()
+        if pths:
+            fallback_path = os.path.join(model_dir, pths[0])
+
     if weights_path and not os.path.exists(weights_path):
-        model_dir = os.path.dirname(weights_path) or "models"
-        if os.path.isdir(model_dir):
-            for filename in os.listdir(model_dir):
-                if filename.lower().endswith(".pth"):
-                    alt_path = os.path.join(model_dir, filename)
-                    print(f"[POC] Default weights not found; using {alt_path}")
-                    weights_path = alt_path
-                    break
+        if fallback_path and os.path.exists(fallback_path):
+            print(f"[POC] Requested weights '{weights_path}' not found; using fallback {fallback_path}")
+            weights_path = fallback_path
+        else:
+            weights_path = None
+
+    if not weights_path and fallback_path and os.path.exists(fallback_path):
+        weights_path = fallback_path
+        print(f"[POC] Using fallback weights {weights_path}")
 
     if weights_path and os.path.exists(weights_path):
         with torch.serialization.safe_globals([AODNet, AODnet]):
@@ -114,8 +129,8 @@ def run_single_image(args):
     with torch.no_grad():
         enhanced_tensor = model(input_tensor)
     enhanced_bgr = postprocess(enhanced_tensor)
-    enhanced_display = enhance_image(enhanced_bgr, apply_clahe=True, gamma=1.15)
-    enhanced_display = sharpen_image(enhanced_display, strength=0.6)
+    enhanced_display = enhance_image(enhanced_bgr, apply_clahe=True, gamma=0.98, saturation_scale=1.1)
+    enhanced_display = sharpen_image(enhanced_display, strength=0.45)
     print("[POC] Enhancement complete.")
 
     # ── 3. Grad-CAM ───────────────────────────────────────────────────────────
@@ -165,7 +180,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--input",     required=True,  help="Path to foggy input image")
     parser.add_argument("--reference", default=None,   help="Path to clean reference image (for PSNR/SSIM)")
-    parser.add_argument("--weights",   default="models/aod_net.pth", help="Path to AOD-Net weights (.pth)")
+    parser.add_argument("--weights",   default="models/AOD_net_epoch_relu_10.pth", help="Path to AOD-Net weights (.pth)")
     parser.add_argument("--save",      default="output", help="Directory to save outputs")
     args = parser.parse_args()
     run_single_image(args)

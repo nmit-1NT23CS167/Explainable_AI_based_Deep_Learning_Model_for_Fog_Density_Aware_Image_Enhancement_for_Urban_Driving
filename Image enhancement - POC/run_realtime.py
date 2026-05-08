@@ -33,17 +33,76 @@ from utils.grad_cam import GradCAM, apply_colormap
 RESIZE_W = 480  # resize input for real-time performance
 
 
+def _try_open_capture(source, backend=None):
+    if backend is None:
+        return cv2.VideoCapture(source)
+    return cv2.VideoCapture(source, backend)
+
+
+def open_video_source(source):
+    backends = [None]
+    if hasattr(cv2, "CAP_FFMPEG"):
+        backends.append(cv2.CAP_FFMPEG)
+    if hasattr(cv2, "CAP_DSHOW"):
+        backends.append(cv2.CAP_DSHOW)
+    if hasattr(cv2, "CAP_ANY"):
+        backends.append(cv2.CAP_ANY)
+
+    for backend in backends:
+        cap = _try_open_capture(source, backend)
+        if not cap.isOpened():
+            continue
+
+        ret, _ = cap.read()
+        if not ret:
+            cap.release()
+            continue
+
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        backend_name = "default"
+        if backend == cv2.CAP_FFMPEG:
+            backend_name = "FFMPEG"
+        elif backend == cv2.CAP_DSHOW:
+            backend_name = "DSHOW"
+        elif backend == cv2.CAP_ANY:
+            backend_name = "ANY"
+        print(f"[RT] Opened source with backend: {backend_name}")
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        if frame_count > 0:
+            print(f"[RT] Source info: frames={frame_count} fps={fps:.2f}")
+        return cap
+
+    return None
+
+
 def load_model(weights_path: str, device: torch.device) -> AODNet:
     model = AODNet().to(device)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    if weights_path:
+        weights_path = os.path.expanduser(weights_path)
+        if not os.path.isabs(weights_path):
+            weights_path = os.path.join(script_dir, weights_path)
+
+    model_dir = os.path.join(script_dir, "models")
+    fallback_path = None
+    if os.path.isdir(model_dir):
+        pths = [f for f in os.listdir(model_dir) if f.lower().endswith(".pth")]
+        pths.sort()
+        if pths:
+            fallback_path = os.path.join(model_dir, pths[0])
+
     if weights_path and not os.path.exists(weights_path):
-        model_dir = os.path.dirname(weights_path) or "models"
-        if os.path.isdir(model_dir):
-            for filename in os.listdir(model_dir):
-                if filename.lower().endswith(".pth"):
-                    alt_path = os.path.join(model_dir, filename)
-                    print(f"[RT] Default weights not found; using {alt_path}")
-                    weights_path = alt_path
-                    break
+        if fallback_path and os.path.exists(fallback_path):
+            print(f"[RT] Requested weights '{weights_path}' not found; using fallback {fallback_path}")
+            weights_path = fallback_path
+        else:
+            weights_path = None
+
+    if not weights_path and fallback_path and os.path.exists(fallback_path):
+        weights_path = fallback_path
+        print(f"[RT] Using fallback weights {weights_path}")
+
     if weights_path and os.path.exists(weights_path):
         with torch.serialization.safe_globals([AODNet]):
             checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
@@ -72,12 +131,14 @@ def process_frame(frame_bgr, model, grad_cam, device, show_xai: bool):
 
     with torch.no_grad():
         enhanced_tensor = model(tensor)
-    enhanced = postprocess(enhanced_tensor)
-    enhanced = enhance_image(enhanced, apply_clahe=True, gamma=1.15)
+    base_enhanced = postprocess(enhanced_tensor)
+
+    # Apply the stronger enhancement path used in the static POC for better clarity.
+    enhanced = enhance_image(base_enhanced, apply_clahe=True, gamma=1.15)
     enhanced = sharpen_image(enhanced, strength=0.6)
 
     if show_xai:
-        heatmap = grad_cam.generate(preprocess(small, device))
+        heatmap = grad_cam.generate(tensor)
         xai_overlay = apply_colormap(heatmap, enhanced)
         return small, enhanced, xai_overlay
     else:
@@ -97,8 +158,8 @@ def run_realtime(args):
 
     # Open source
     src = int(args.source) if args.source.isdigit() else args.source
-    cap = cv2.VideoCapture(src)
-    if not cap.isOpened():
+    cap = open_video_source(src)
+    if cap is None or not cap.isOpened():
         print(f"[RT] ERROR: Cannot open source '{args.source}'")
         sys.exit(1)
 
@@ -156,6 +217,6 @@ def run_realtime(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fog XAI POC — Real-Time Mode")
     parser.add_argument("--source",  default="0",  help="Webcam index (0,1,...) or path to video file")
-    parser.add_argument("--weights", default="models/aod_net.pth", help="AOD-Net weights (.pth)")
+    parser.add_argument("--weights", default="models/AOD_net_epoch_relu_10.pth", help="AOD-Net weights (.pth)")
     args = parser.parse_args()
     run_realtime(args)
