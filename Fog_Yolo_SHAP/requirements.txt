@@ -1,0 +1,13 @@
+ultralytics>=8.2.0        # YOLOv11 (ships as part of ultralytics)
+torch>=2.1.0
+torchvision>=0.16.0
+opencv-python>=4.9.0
+numpy>=1.26.0
+shap>=0.45.0
+scikit-learn>=1.4.0       # needed by SHAP kernel explainer
+matplotlib>=3.8.0
+Pillow>=10.2.0
+streamlit>=1.35.0         # optional web UI
+scipy>=1.12.0
+pandas>=2.2.0             # SHAP summary plots
+#playsound>=1.3.0          # audio alerts (optional)
