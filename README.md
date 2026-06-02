@@ -1,0 +1,16 @@
+# Explainable AI based Deep Learning Model for Fog Density – Aware Image Enhancement for Autonomous and Urban Driving.
+
+## Problem Statement:
+The Current deep learning models for image dehazing in autonomous driving/urban driving requires enhanced visuals and are ow without explaining the internal reasoning behind specific pixel-level restorations. The standard image restoration metrics like PSNR and SSIM can quantify a model’s ability to improve contrast and reduce noise, but they fail to measure XAI-specific fidelity—the degree to which the model’s explanations accurately reflect its actual processing of safety-critical urban features like fog areas, pedestrians or traffic signals.  
+In adverse weather conditions, a model may produce a visually appealing image but base its "enhancement" on irrelevant background noise or hallucinated structures, leading to catastrophic failures and lead to the downfall of the performance of autonomous system . There is an actual need for a rigorous validation framework that 
+simultaneously evaluates restoration quality and XAI faithfulness to ensure that enhanced imagery is both perceptually clear and logically sound for safe autonomous navigation 
+ 
+## Objectives: 
+1. Design a Conceptual Framework for Explainable AI based Deep Learning Model for autonomous / Urban Driving  
+2. Develop an AI Enhancement Model to remove fog and haze from images to enhance visibility in adverse weather conditions/map data 
+3. To evaluate and validate the model’s performance using a combination of image restoration metrics and XAI-specific fidelity.
+ 
+## Main Application area for the project: 
+Autonomous Driving & Smart Transportation, 
+Self-driving cars, 
+Advanced Driver Assistance Systems (ADAS) 
