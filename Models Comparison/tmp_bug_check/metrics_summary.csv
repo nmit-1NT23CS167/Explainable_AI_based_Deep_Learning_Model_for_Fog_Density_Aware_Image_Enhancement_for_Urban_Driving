@@ -1,0 +1,25 @@
+Metric,Display Name,Higher=Better,AOD-Net_mean,GridDehazeNet_mean,AOD-Net_std,GridDehazeNet_std,Winner
+psnr,PSNR (dB),True,,,,,—
+ssim,SSIM,True,,,,,—
+mse,MSE (px²),False,,,,,—
+mae,MAE (px),False,,,,,—
+rmse,RMSE (px),False,,,,,—
+psnr_gain,PSNR Gain (dB) ↑,True,2.5,3.5,0.1,0.2,GridDehazeNet
+ssim_gain,SSIM Gain ↑,True,,,,,—
+mse_ratio,MSE Ratio (fog/out) ↑,True,,,,,—
+sharpness,Sharpness ↑,True,12.3,13.5,0.2,0.3,GridDehazeNet
+sharpness_gain,Sharpness Gain ↑,True,,,,,—
+fog_density,Fog Density ↓,False,,,,,—
+fog_reduction,Fog Reduction ↑,True,,,,,—
+colorfulness,Colorfulness ↑,True,,,,,—
+color_gain,Color Gain ↑,True,,,,,—
+contrast,Contrast ↑,True,,,,,—
+contrast_gain,Contrast Gain ↑,True,,,,,—
+dark_channel,Dark Channel ↓,False,,,,,—
+entropy,Entropy ↑,True,,,,,—
+lane_contrast,Lane Contrast ↑,True,,,,,—
+visibility,Visibility Depth ↑,True,,,,,—
+infer_ms,Inference (ms) ↓,False,,,,,—
+fps,FPS,True,10.0,12.0,,,—
+infer_ms,Inference ms,False,20.0,18.0,,,—
+params_M,Parameters (M),False,3.2,4.8,,,—
