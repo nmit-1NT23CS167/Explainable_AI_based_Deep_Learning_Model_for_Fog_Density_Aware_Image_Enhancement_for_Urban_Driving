@@ -62,7 +62,7 @@ VOICE_RATE            = 165    # words per minute
 VOICE_VOLUME          = 1.0    # range 0.0–1.0
 
 # ── Output ────────────────────────────────────────────────────────────────────
-OUTPUT_DIR      = "D:/Project/AOD Net Enhancement with Object Detection (Yolo 12)/output"
+OUTPUT_DIR      = "AOD Net Enhancement with Object Detection (Yolo 12)/output"
 VIDEO_FPS       = 20
 FONT_SCALE      = 0.55
 FONT_THICKNESS  = 2
