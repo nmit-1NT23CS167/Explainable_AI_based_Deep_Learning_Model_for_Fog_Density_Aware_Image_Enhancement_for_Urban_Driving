@@ -1,0 +1,23 @@
+\begin{table}[h]
+\centering
+\caption{AOD-Net vs GridDehazeNet — Dehazing Performance}
+\label{tab:comparison}
+\begin{tabular}{lrr}
+\hline
+\textbf{Metric} & \textbf{AOD-Net} & \textbf{GridDehazeNet} \\
+\hline
+PSNR (dB) & \textbf{17.285} & 15.173 \\
+SSIM & \textbf{0.8442} & 0.8402 \\
+MSE & \textbf{1327.263} & 2069.212 \\
+Sharpness & \textbf{1124.29} & 980.98 \\
+Fog Reduction & +0.0832 & +0.0832 \\
+Colorfulness & \textbf{21.27} & 20.05 \\
+Lane Contrast & 20.78 & \textbf{24.48} \\
+Visibility & 1.000 & 1.000 \\
+\hline
+FPS & 46.3 & 0.8 \\
+Inference (ms) & 21.6 & 1220.3 \\
+Parameters & 0.002 M & 0.958 M \\
+\hline
+\end{tabular}
+\end{table}
