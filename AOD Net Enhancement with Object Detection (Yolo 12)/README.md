@@ -1,6 +1,6 @@
-# Fog Safety AI — Unified POC
+# Explainable AI based Deep Learning Model for Fog Density – Aware Image Enhancement for Autonomous and Urban Driving
 
-**AOD-Net Enhancement · Grad-CAM XAI · YOLOv11 Detection · SHAP Risk Explanation**
+**AOD-Net Enhancement · Grad-CAM XAI · YOLOv12 Detection · SHAP Risk Explanation**
 
 ## Quick start
 ```bash
