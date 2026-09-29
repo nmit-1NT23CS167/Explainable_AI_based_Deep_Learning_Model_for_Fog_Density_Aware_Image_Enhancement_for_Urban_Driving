@@ -1,0 +1,2 @@
+The results are obatined based on RESIDE-6K dataset.
+The RESIDE-6K dataset is a popular benchmark subset derived from the larger RESIDE(REalistic Single Image DEhazing) bechmark, specifically structured for evaluating dehazing algorithms.
